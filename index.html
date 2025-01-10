@@ -8,63 +8,88 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 0;
       background-color: #f4f4f9;
       color: #333;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      padding: 20px;
       text-align: center;
     }
     h1 {
-      color: #4CAF50;
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+      margin: 0;
     }
     table {
-      width: 100%;
+      width: 90%;
+      margin: 20px auto;
       border-collapse: collapse;
-      margin-top: 20px;
-    }
-    table, th, td {
-      border: 1px solid #ddd;
     }
     th, td {
-      padding: 10px;
-      text-align: center;
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
     }
     th {
       background-color: #4CAF50;
       color: white;
     }
-    button {
-      padding: 5px 10px;
-      font-size: 14px;
-      border: none;
-      border-radius: 5px;
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    input[type="number"] {
-      width: 50px;
-      padding: 5px;
-      text-align: center;
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Cronograma EMBRAPA 2025</h1>
-    <div id="cronograma">
-      <p>Carregando cronograma...</p>
-    </div>
-  </div>
+  <h1>Cronograma EMBRAPA 2025</h1>
+  <p id="loading">Carregando cronograma...</p>
+  <table id="cronogramaTable" style="display: none;">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Dia da Semana</th>
+        <th>Matéria</th>
+        <th>Conteúdo</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbz-WXuVKI22jY6tNXO1bNIwMfomQGxDbEyoJJzOQHhn/dev";
+
+    async function carregarCronograma() {
+      try {
+        const response = await fetch(scriptUrl);
+        const data = await response.json();
+
+        if (data.status === "success") {
+          const tabela = document.getElementById("cronogramaTable");
+          const corpoTabela = tabela.querySelector("tbody");
+
+          data.data.forEach(item => {
+            const linha = document.createElement("tr");
+            linha.innerHTML = `
+              <td>${item.data}</td>
+              <td>${item.diaSemana}</td>
+              <td>${item.materia}</td>
+              <td>${item.conteudo}</td>
+              <td><a href="${item.link}" target="_blank">Acessar</a></td>
+            `;
+            corpoTabela.appendChild(linha);
+          });
+
+          document.getElementById("loading").style.display = "none";
+          tabela.style.display = "table";
+        } else {
+          document.getElementById("loading").innerText = "Erro ao carregar o cronograma.";
+        }
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+        document.getElementById("loading").innerText = "Erro de conexão.";
+      }
+    }
+
+    carregarCronograma();
+  </script>
 </body>
 </html>
